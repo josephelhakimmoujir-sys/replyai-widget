@@ -1,12 +1,19 @@
 (function () {
 
+  //////////////////////////////
+  // CONFIG
+  //////////////////////////////
   const config = {
     name: "ReplyAI",
     color: "#3b82f6",
     welcomeMessage: "Hi! How can I help you today?"
   };
 
+  let started = false;
+
+  //////////////////////////////
   // FLOAT BUTTON
+  //////////////////////////////
   const button = document.createElement("div");
   button.innerHTML = "💬";
 
@@ -29,7 +36,9 @@
 
   document.body.appendChild(button);
 
-  // CHAT BOX
+  //////////////////////////////
+  // CHAT WINDOW
+  //////////////////////////////
   const box = document.createElement("div");
 
   Object.assign(box.style, {
@@ -63,22 +72,18 @@
 
   document.body.appendChild(box);
 
-  // TOGGLE
-  button.onclick = () => {
-    box.style.display = box.style.display === "none" ? "flex" : "none";
-
-    if (!window.started) {
-      add("bot", config.welcomeMessage);
-      window.started = true;
-    }
-  };
-
-  // CHAT LOGIC
-  function add(type, text) {
+  //////////////////////////////
+  // CHAT FUNCTIONS
+  //////////////////////////////
+  function addMessage(type, text) {
     const chat = document.getElementById("chat");
 
     chat.innerHTML += `
-      <div style="margin:5px 0;text-align:${type === "user" ? "right" : "left"};color:white;">
+      <div style="
+        margin:5px 0;
+        text-align:${type === "user" ? "right" : "left"};
+        color:white;
+      ">
         ${text}
       </div>
     `;
@@ -88,8 +93,11 @@
 
   function reply(msg) {
     msg = msg.toLowerCase();
+
     if (msg.includes("hello")) return "Hi! How can I help?";
     if (msg.includes("price")) return "Please contact us for pricing.";
+    if (msg.includes("book")) return "I can help you book an appointment.";
+
     return "I can help with bookings and info.";
   }
 
@@ -97,12 +105,28 @@
     const input = document.getElementById("input");
     if (!input.value.trim()) return;
 
-    add("user", input.value);
-    add("bot", reply(input.value));
+    addMessage("user", input.value);
+    addMessage("bot", reply(input.value));
 
     input.value = "";
   }
 
+  //////////////////////////////
+  // EVENTS
+  //////////////////////////////
+  button.onclick = () => {
+    box.style.display = box.style.display === "none" ? "flex" : "none";
+
+    if (!started) {
+      addMessage("bot", config.welcomeMessage);
+      started = true;
+    }
+  };
+
   document.getElementById("send").onclick = send;
+
+  document.getElementById("input").addEventListener("keydown", (e) => {
+    if (e.key === "Enter") send();
+  });
 
 })();
